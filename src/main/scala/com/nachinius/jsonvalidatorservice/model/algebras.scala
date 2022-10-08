@@ -8,15 +8,15 @@
 
 package com.nachinius.jsonvalidatorservice.model
 
-trait ValidateJsonAgainstSchema {
+trait ValidateJsonSchemaAlgebra {
   def validateDocument(schema: JsonSchema, document: JsonDocument): Either[ErrorDuringValidation, Unit]
 }
 
-trait DocumentValidator[F[_]] {
+trait DocumentValidatorAlgebra[F[_]] {
   def validate(schemaId: SchemaId, document: JsonDocument): F[Either[ValidatorError, Unit]]
 }
 
-trait JsonSchemaRepository[F[_]] {
+trait JsonSchemaRepositoryAlgebra[F[_]] {
   def fetch(schemaId: SchemaId): F[Option[JsonSchema]]
   def insert(schemaId: SchemaId, document: JsonDocument): F[Either[SchemaExists, Unit]]
 }
