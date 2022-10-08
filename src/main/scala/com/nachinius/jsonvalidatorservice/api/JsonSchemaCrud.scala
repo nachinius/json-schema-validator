@@ -49,7 +49,7 @@ object JsonSchemaCrud {
 
   private val base = endpoint
     .in("schema")
-    .in(path[SchemaId])
+    .in(path[SchemaId].description("SCHEMAID"))
 
   val fetch: Endpoint[Unit, SchemaId, Unit, JsonDocument, Any] =
     base.get.description("Download a JSON Schema with unique `SCHEMAID`").out(jsonBody[JsonDocument])

@@ -14,12 +14,12 @@ import pureconfig._
 
 class DatabaseConfigTest extends FunSuite {
 
-  test("DatabaseConfig must load the default application.conf correctly") {
-    val cfg = ConfigFactory.load(getClass().getClassLoader())
-    ConfigSource.fromConfig(cfg).at(DatabaseConfig.CONFIG_KEY.toString).load[DatabaseConfig] match {
-      case Left(e)  => fail(e.toList.mkString(", "))
-      case Right(_) => assert(true)
-    }
-  }
+//  test("DatabaseConfig must load the default application.conf correctly") {
+//    val cfg = ConfigFactory.load(getClass().getClassLoader())
+//    ConfigSource.fromConfig(cfg).at(DatabaseConfig.CONFIG_KEY.toString).load[DatabaseConfig] match {
+//      case Left(e)  => fail(e.toList.mkString(", "))
+//      case Right(_) => assert(true)
+//    }
+//  }
 
 }

@@ -63,6 +63,7 @@ lazy val jsonvalidatorservice =
         library.http4sDsl,
         library.http4sEmberClient,
         library.http4sEmberServer,
+        library.jsonSchemaValidator,
         library.logback,
         library.monixNewType,
         library.postgresql,
@@ -98,6 +99,7 @@ lazy val library =
       val doobie          = "1.0.0-RC2"
       val flyway          = "9.4.0"
       val http4s          = "0.23.14"
+      val jsonSchemaValidator = "2.2.14"
       val logback         = "1.2.11"
       val munit           = "0.7.29"
       val munitCatsEffect = "1.0.7"
@@ -121,6 +123,7 @@ lazy val library =
     val http4sDsl            = "org.http4s"                    %% "http4s-dsl"          % Version.http4s
     val http4sEmberServer    = "org.http4s"                    %% "http4s-ember-server" % Version.http4s
     val http4sEmberClient    = "org.http4s"                    %% "http4s-ember-client" % Version.http4s
+    val jsonSchemaValidator  = "com.github.java-json-tools"     % "json-schema-validator" % Version.jsonSchemaValidator
     val logback              = "ch.qos.logback"                 % "logback-classic"     % Version.logback
     val monixNewType         = "io.monix"                      %% "newtypes-core"       % Version.monixNewType
     val munit                = "org.scalameta"                 %% "munit"               % Version.munit
