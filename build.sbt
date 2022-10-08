@@ -4,23 +4,23 @@
 
 inThisBuild(
   Seq(
-    scalaVersion := "2.13.9",
-    organization := "com.nachinius",
+    scalaVersion     := "2.13.9",
+    organization     := "com.nachinius",
     organizationName := "nachinius",
-    startYear := Some(2022),
+    startYear        := Some(2022),
     licenses += ("MPL-2.0", url("https://www.mozilla.org/en-US/MPL/2.0/")),
     testFrameworks += new TestFramework("munit.Framework"),
     Test / parallelExecution := false,
-    dynverSeparator   := "_", // the default `+` is not compatible with docker tags
+    dynverSeparator          := "_", // the default `+` is not compatible with docker tags
     scalacOptions ++= Seq(
       "-deprecation",
-      "-explain-types",
+//      "-explain-types",
       "-feature",
       "-language:higherKinds",
       "-language:implicitConversions",
       "-unchecked",
-      "-Xfatal-warnings", // Should be enabled if feasible.
-      "-Ykind-projector"
+      "-Xfatal-warnings" // Should be enabled if feasible.
+//      "-Ykind-projector"
     ),
     scalafmtOnCompile := false,
     Compile / console / scalacOptions --= Seq("-Xfatal-warnings"),
@@ -64,6 +64,7 @@ lazy val jsonvalidatorservice =
         library.http4sEmberClient,
         library.http4sEmberServer,
         library.logback,
+        library.monixNewType,
         library.postgresql,
         library.pureConfig,
         library.sttpApiSpecCirceYaml,
@@ -73,14 +74,14 @@ lazy val jsonvalidatorservice =
         library.tapirHttp4s,
         library.tapirOpenApiDocs,
         library.tapirSwaggerUi,
-        library.munit             % IntegrationTest,
-        library.munitCatsEffect   % IntegrationTest,
-        library.munitScalaCheck   % IntegrationTest,
-        library.scalaCheck        % IntegrationTest,
-        library.munit             % Test,
-        library.munitCatsEffect   % Test,
-        library.munitScalaCheck   % Test,
-        library.scalaCheck        % Test
+        library.munit           % IntegrationTest,
+        library.munitCatsEffect % IntegrationTest,
+        library.munitScalaCheck % IntegrationTest,
+        library.scalaCheck      % IntegrationTest,
+        library.munit           % Test,
+        library.munitCatsEffect % Test,
+        library.munitScalaCheck % Test,
+        library.scalaCheck      % Test
       )
     )
 
@@ -104,6 +105,7 @@ lazy val library =
       val scalaCheck      = "1.15.4"
       val sttpApiSpec     = "0.2.1"
       val tapir           = "1.1.2"
+      val monixNewType    = "0.2.3"
     }
     val catsCore             = "org.typelevel"                 %% "cats-core"           % Version.cats
     val circeCore            = "io.circe"                      %% "circe-core"          % Version.circe
@@ -113,16 +115,17 @@ lazy val library =
     val doobieHikari         = "org.tpolecat"                  %% "doobie-hikari"       % Version.doobie
     val doobiePostgres       = "org.tpolecat"                  %% "doobie-postgres"     % Version.doobie
     val doobieScalaTest      = "org.tpolecat"                  %% "doobie-scalatest"    % Version.doobie
-    val flywayCore           = "org.flywaydb"                  %  "flyway-core"         % Version.flyway
+    val flywayCore           = "org.flywaydb"                   % "flyway-core"         % Version.flyway
     val http4sCirce          = "org.http4s"                    %% "http4s-circe"        % Version.http4s
     val http4sDsl            = "org.http4s"                    %% "http4s-dsl"          % Version.http4s
     val http4sEmberServer    = "org.http4s"                    %% "http4s-ember-server" % Version.http4s
     val http4sEmberClient    = "org.http4s"                    %% "http4s-ember-client" % Version.http4s
-    val logback              = "ch.qos.logback"                %  "logback-classic"     % Version.logback
+    val logback              = "ch.qos.logback"                 % "logback-classic"     % Version.logback
+    val monixNewType         = "io.monix"                      %% "newtypes-core"       % Version.monixNewType
     val munit                = "org.scalameta"                 %% "munit"               % Version.munit
     val munitCatsEffect      = "org.typelevel"                 %% "munit-cats-effect-3" % Version.munitCatsEffect
     val munitScalaCheck      = "org.scalameta"                 %% "munit-scalacheck"    % Version.munit
-    val postgresql           = "org.postgresql"                %  "postgresql"          % Version.postgresql
+    val postgresql           = "org.postgresql"                 % "postgresql"          % Version.postgresql
     val pureConfig           = "com.github.pureconfig"         %% "pureconfig-core"     % Version.pureConfig
     val scalaCheck           = "org.scalacheck"                %% "scalacheck"          % Version.scalaCheck
     val sttpApiSpecCirceYaml = "com.softwaremill.sttp.apispec" %% "openapi-circe-yaml"  % Version.sttpApiSpec
@@ -132,6 +135,7 @@ lazy val library =
     val tapirHttp4s          = "com.softwaremill.sttp.tapir"   %% "tapir-http4s-server" % Version.tapir
     val tapirOpenApiDocs     = "com.softwaremill.sttp.tapir"   %% "tapir-openapi-docs"  % Version.tapir
     val tapirSwaggerUi       = "com.softwaremill.sttp.tapir"   %% "tapir-swagger-ui"    % Version.tapir
+
   }
 
 // *****************************************************************************
@@ -140,6 +144,5 @@ lazy val library =
 
 lazy val scalafmtSettings =
   Seq(
-    scalafmtOnCompile := false,
+    scalafmtOnCompile := false
   )
-
