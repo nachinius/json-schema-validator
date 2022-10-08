@@ -72,6 +72,7 @@ lazy val jsonvalidatorservice =
         library.tapirCirce,
         library.tapirCore,
         library.tapirHttp4s,
+        library.tapirMonixNewType,
         library.tapirOpenApiDocs,
         library.tapirSwaggerUi,
         library.munit           % IntegrationTest,
@@ -133,8 +134,10 @@ lazy val library =
     val tapirCirce           = "com.softwaremill.sttp.tapir"   %% "tapir-json-circe"    % Version.tapir
     val tapirCore            = "com.softwaremill.sttp.tapir"   %% "tapir-core"          % Version.tapir
     val tapirHttp4s          = "com.softwaremill.sttp.tapir"   %% "tapir-http4s-server" % Version.tapir
+    val tapirMonixNewType = "com.softwaremill.sttp.tapir" %% "tapir-monix-newtype" % Version.tapir
     val tapirOpenApiDocs     = "com.softwaremill.sttp.tapir"   %% "tapir-openapi-docs"  % Version.tapir
     val tapirSwaggerUi       = "com.softwaremill.sttp.tapir"   %% "tapir-swagger-ui"    % Version.tapir
+
 
   }
 

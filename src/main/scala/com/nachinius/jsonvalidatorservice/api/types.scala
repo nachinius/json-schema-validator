@@ -9,15 +9,13 @@
 package com.nachinius.jsonvalidatorservice.api
 
 import sttp.tapir.CodecFormat.TextPlain
-import sttp.tapir._
-import sttp.tapir._
-import sttp.tapir.json.circe._
-import io.circe.generic.semiauto._
 import sttp.tapir.Schema
-import sttp.tapir.generic.auto._
-import sttp.tapir.generic.Derived
+import sttp.tapir._
 
 object types {
+
+  import com.nachinius.jsonvalidatorservice.model.SchemaId
+
   type NameParameter = String
   object NameParameter {
 
@@ -52,6 +50,8 @@ object types {
   case class Response(actions: String, id: String, status: String, message: String)
 
   object Response {
+
+    import io.circe.generic.semiauto._
 
     implicit val c                        = deriveCodec[Response]
     implicit lazy val s: Schema[Response] = Schema.derived

@@ -13,9 +13,9 @@ getschema id:
   #!/usr/bin/env zsh
   set -euxo pipefail
   echo "get /schema/{{id}}"
-  {{CURL}} "{{HOST}}/hello?name={{id}}"
+  {{CURL}} "{{HOST}}/schema/{{id}}"
 
-getid: (getschema "id")
+getid: (getschema "myschemaid")
 
 swagger:
   #!/usr/bin/env zsh
