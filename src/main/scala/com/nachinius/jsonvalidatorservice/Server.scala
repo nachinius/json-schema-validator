@@ -32,18 +32,21 @@ object Server extends IOApp {
 
     for {
       config <- IO(ConfigFactory.load(getClass().getClassLoader()))
-      dbConfig <- IO(
-        ConfigSource.fromConfig(config).at(DatabaseConfig.CONFIG_KEY.toString).loadOrThrow[DatabaseConfig]
-      )
+//      dbConfig <- IO(
+//        ConfigSource.fromConfig(config).at(DatabaseConfig.CONFIG_KEY.toString).loadOrThrow[DatabaseConfig]
+//      )
       serviceConfig <- IO(
         ConfigSource.fromConfig(config).at(ServiceConfig.CONFIG_KEY.toString).loadOrThrow[ServiceConfig]
       )
-      _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
-      helloWorldRoutes = new HelloWorld[IO]
-      docs             = OpenAPIDocsInterpreter().toOpenAPI(List(HelloWorld.greetings), "My Service", "1.0.0")
-      swaggerRoutes    = Http4sServerInterpreter[IO]().toRoutes(SwaggerUI[IO](docs.toYaml))
-      routes           = helloWorldRoutes.routes <+> swaggerRoutes
-      httpApp          = Router("/" -> routes).orNotFound
+//      _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
+      helloWorldRoutes     = new HelloWorld[IO]
+      jsonSchemaCrudRoutes = new JsonSchemaCrud[IO]
+      _                    = println("c")
+      docs                 = OpenAPIDocsInterpreter().toOpenAPI(List(HelloWorld.greetings), "My Service", "1.0.0")
+      swaggerRoutes        = Http4sServerInterpreter[IO]().toRoutes(SwaggerUI[IO](docs.toYaml))
+      routes               = jsonSchemaCrudRoutes.routes <+> helloWorldRoutes.routes <+> swaggerRoutes
+      httpApp              = Router("/" -> routes).orNotFound
+      _                    = println("c")
       resource = EmberServerBuilder
         .default[IO]
         .withHost(serviceConfig.host)

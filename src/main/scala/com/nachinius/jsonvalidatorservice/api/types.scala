@@ -10,6 +10,12 @@ package com.nachinius.jsonvalidatorservice.api
 
 import sttp.tapir.CodecFormat.TextPlain
 import sttp.tapir._
+import sttp.tapir._
+import sttp.tapir.json.circe._
+import io.circe.generic.semiauto._
+import sttp.tapir.Schema
+import sttp.tapir.generic.auto._
+import sttp.tapir.generic.Derived
 
 object types {
   type NameParameter = String
@@ -42,4 +48,13 @@ object types {
       */
     def from(source: String): Option[NameParameter] = Option(source).filter(_.nonEmpty)
   }
+
+  case class Response(actions: String, id: String, status: String, message: String)
+
+  object Response {
+
+    implicit val c                        = deriveCodec[Response]
+    implicit lazy val s: Schema[Response] = Schema.derived
+  }
+
 }

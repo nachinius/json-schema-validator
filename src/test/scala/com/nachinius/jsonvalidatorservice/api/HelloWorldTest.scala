@@ -73,9 +73,9 @@ class HelloWorldTest extends CatsEffectSuite {
 
     val name = "Captain Kirk"
     val expectedGreetings = Greetings(
-      title = GreetingTitle("Hello Captain Kirk!"),
-      headings = GreetingHeader("Hello Captain Kirk, live long and prosper!"),
-      message = GreetingMessage("This is a fancy message directly from http4s! :-)")
+      title = "Hello Captain Kirk!",
+      headings = "Hello Captain Kirk, live long and prosper!",
+      message = "This is a fancy message directly from http4s! :-)"
     )
     Uri.fromString(Uri.encode(s"/hello?name=$name")) match {
       case Left(e) =>
