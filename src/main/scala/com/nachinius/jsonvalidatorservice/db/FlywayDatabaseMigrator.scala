@@ -15,13 +15,17 @@ import com.nachinius.jsonvalidatorservice.types._
 
 final class FlywayDatabaseMigrator {
 
-  /**
-    * Apply pending migrations to the database.
+  /** Apply pending migrations to the database.
     *
-    * @param url  A JDBC database connection url.
-    * @param user The login name for the connection.
-    * @param pass The password for the connection.
-    * @return A migrate result object holding information about executed migrations and the schema. See the Java-Doc of Flyway for details.
+    * @param url
+    *   A JDBC database connection url.
+    * @param user
+    *   The login name for the connection.
+    * @param pass
+    *   The password for the connection.
+    * @return
+    *   A migrate result object holding information about executed migrations and the schema. See the Java-Doc of Flyway
+    *   for details.
     */
   def migrate(url: JdbcUrl, user: JdbcUsername, pass: JdbcPassword): IO[MigrateResult] =
     IO {
