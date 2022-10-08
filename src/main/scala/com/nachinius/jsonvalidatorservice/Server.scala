@@ -42,11 +42,15 @@ object Server extends IOApp {
       helloWorldRoutes     = new HelloWorld[IO]
       jsonSchemaCrudRoutes = new JsonSchemaCrud[IO]
       _                    = println("c")
-      docs                 = OpenAPIDocsInterpreter().toOpenAPI(List(HelloWorld.greetings), "My Service", "1.0.0")
-      swaggerRoutes        = Http4sServerInterpreter[IO]().toRoutes(SwaggerUI[IO](docs.toYaml))
-      routes               = jsonSchemaCrudRoutes.routes <+> helloWorldRoutes.routes <+> swaggerRoutes
-      httpApp              = Router("/" -> routes).orNotFound
-      _                    = println("c")
+      docs = OpenAPIDocsInterpreter().toOpenAPI(
+        List(HelloWorld.greetings, JsonSchemaCrud.fetch, JsonSchemaCrud.insert),
+        "My Service",
+        "1.0.0"
+      )
+      swaggerRoutes = Http4sServerInterpreter[IO]().toRoutes(SwaggerUI[IO](docs.toYaml))
+      routes        = jsonSchemaCrudRoutes.routes <+> helloWorldRoutes.routes <+> swaggerRoutes
+      httpApp       = Router("/" -> routes).orNotFound
+      _             = println("c")
       resource = EmberServerBuilder
         .default[IO]
         .withHost(serviceConfig.host)

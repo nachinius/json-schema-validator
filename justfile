@@ -15,6 +15,17 @@ getschema id:
   echo "get /schema/{{id}}"
   {{CURL}} "{{HOST}}/schema/{{id}}"
 
+postschema:
+  #!/usr/bin/env zsh
+  set -euxo pipefail
+  echo "post /schema/h"
+  payload=$(cat <<-JSONPAYLOAD
+  { "jsonfield" : "value" }
+  JSONPAYLOAD
+  )
+  {{CURL}} -X POST {{HOST}}/schema/h -d "$payload"
+
+
 getid: (getschema "myschemaid")
 
 swagger:

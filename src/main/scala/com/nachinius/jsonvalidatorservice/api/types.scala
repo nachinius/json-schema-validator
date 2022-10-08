@@ -47,14 +47,15 @@ object types {
     def from(source: String): Option[NameParameter] = Option(source).filter(_.nonEmpty)
   }
 
-  case class Response(actions: String, id: String, status: String, message: String)
+  case class Response(actions: String, id: String, status: String, message: Option[String])
 
   object Response {
 
-    import io.circe.generic.semiauto._
+    import io.circe.Codec
+    import io.circe.generic.semiauto.deriveCodec
 
-    implicit val c                        = deriveCodec[Response]
-    implicit lazy val s: Schema[Response] = Schema.derived
+    implicit val responseCodec: Codec[Response]        = deriveCodec[Response]
+    implicit lazy val responseSchema: Schema[Response] = Schema.derived
   }
 
 }
