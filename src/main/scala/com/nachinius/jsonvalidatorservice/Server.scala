@@ -23,24 +23,31 @@ import sttp.apispec.openapi.circe.yaml._
 import sttp.tapir.docs.openapi._
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.swagger.SwaggerUI
+import com.nachinius.jsonvalidatorservice.implementations.DocumentValidatorService
+import com.nachinius.jsonvalidatorservice.implementations.InMemoryRepository
+import com.nachinius.jsonvalidatorservice.implementations.JsonSchemaValidatorWrapper
 
 object Server extends IOApp {
   val log = LoggerFactory.getLogger(Server.getClass())
 
-  override def run(args: List[String]): IO[ExitCode] = {
-    val migrator = new FlywayDatabaseMigrator
+  override def run(args: List[String]): IO[ExitCode] =
+//    val migrator = new FlywayDatabaseMigrator
 
     for {
       config <- IO(ConfigFactory.load(getClass().getClassLoader()))
-      dbConfig <- IO(
-        ConfigSource.fromConfig(config).at(DatabaseConfig.CONFIG_KEY.toString).loadOrThrow[DatabaseConfig]
-      )
+//      dbConfig <- IO(
+//        ConfigSource.fromConfig(config).at(DatabaseConfig.CONFIG_KEY.toString).loadOrThrow[DatabaseConfig]
+//      )
       serviceConfig <- IO(
         ConfigSource.fromConfig(config).at(ServiceConfig.CONFIG_KEY.toString).loadOrThrow[ServiceConfig]
       )
-      _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
-      helloWorldRoutes     = new HelloWorld[IO]
-      jsonSchemaCrudRoutes = new JsonSchemaCrud[IO]
+//      _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
+      helloWorldRoutes = new HelloWorld[IO]
+
+      inMemoryRepo <- InMemoryRepository.make[IO]
+      wrapper              = new JsonSchemaValidatorWrapper()
+      validatorService     = new DocumentValidatorService[IO](inMemoryRepo, wrapper)
+      jsonSchemaCrudRoutes = new JsonSchemaCrud[IO](inMemoryRepo)
       docs = OpenAPIDocsInterpreter().toOpenAPI(
         List(HelloWorld.greetings, JsonSchemaCrud.fetch, JsonSchemaCrud.insert),
         "My Service",
@@ -49,7 +56,6 @@ object Server extends IOApp {
       swaggerRoutes = Http4sServerInterpreter[IO]().toRoutes(SwaggerUI[IO](docs.toYaml))
       routes        = jsonSchemaCrudRoutes.routes <+> helloWorldRoutes.routes <+> swaggerRoutes
       httpApp       = Router("/" -> routes).orNotFound
-      _             = println("c")
       resource = EmberServerBuilder
         .default[IO]
         .withHost(serviceConfig.host)
@@ -60,6 +66,5 @@ object Server extends IOApp {
         IO.delay(log.info("Server started at {}", server.address)) >> IO.never.as(ExitCode.Success)
       )
     } yield fiber
-  }
 
 }

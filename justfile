@@ -48,8 +48,20 @@ postschema:
   )
   {{CURL}} -X POST {{HOST}}/schema/h -d "$payload"
 
+invalidupload:
+  #!/usr/bin/env zsh
+  set -euxo pipefail
+  echo "invalid upload post /schema/hhh"
+  payload=$(cat <<-JSONPAYLOAD
+  { fake json "jsonfield" : "value" }
+  JSONPAYLOAD
+  )
+  {{CURL}} -X POST {{HOST}}/schema/hhh -d "$payload"
+
+
 
 getid: (getschema "myschemaid")
+
 
 swagger:
   #!/usr/bin/env zsh

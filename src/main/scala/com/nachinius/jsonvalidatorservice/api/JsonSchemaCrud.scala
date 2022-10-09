@@ -11,38 +11,66 @@ package com.nachinius.jsonvalidatorservice.api
 import cats.effect.Async
 import cats.implicits.catsSyntaxEitherId
 import cats.implicits.catsSyntaxOptionId
+import cats.implicits.toFunctorOps
 import com.nachinius.jsonvalidatorservice.api.api._
 import com.nachinius.jsonvalidatorservice.model.JsonDocument
+import com.nachinius.jsonvalidatorservice.model.JsonSchemaRepositoryAlgebra
+import com.nachinius.jsonvalidatorservice.model.SchemaExists
 import com.nachinius.jsonvalidatorservice.model.SchemaId
-import io.circe._
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
 import sttp.model.StatusCode
-import sttp.tapir.Endpoint
 import sttp.tapir.codec.monix.newtype._
 import sttp.tapir.endpoint
 import sttp.tapir.json.circe._
 import sttp.tapir.path
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.statusCode
+import sttp.tapir.stringBody
+import sttp.tapir.server.http4s.Http4sServerOptions
+import sttp.tapir.server.interceptor.Interceptor
+import sttp.tapir.server.interceptor.decodefailure.DecodeFailureHandler
+import sttp.tapir.server.interceptor.decodefailure.DecodeFailureInterceptor
+import sttp.tapir.server.model.ValuedEndpointOutput
 
-final class JsonSchemaCrud[F[_]: Async]() extends Http4sDsl[F] {
+final class JsonSchemaCrud[F[_]: Async](repo: JsonSchemaRepositoryAlgebra[F]) extends Http4sDsl[F] {
 
-  private val crud: HttpRoutes[F] =
-    Http4sServerInterpreter[F]().toRoutes(
+  private val fetchRoute = JsonSchemaCrud.fetch.serverLogic[F](name =>
+    repo.fetch(name).map {
+      case Some(value) => value.document.asRight
+      case None        => (StatusCode.NoContent, types.Response("", "", "", None)).asLeft
+    }
+  )
+
+  private def uploadSchemaDocument(schemaId: SchemaId, jsonDocument: JsonDocument) =
+    repo.insert(schemaId, jsonDocument).map {
+      case Left(SchemaExists(_)) =>
+        (
+          StatusCode.ImUsed,
+          types.Response("uploadSchema", schemaId.value, "error", s"Schema already exists".some)
+        ).asRight
+      case Right(()) =>
+        (StatusCode.Created, types.Response("uploadSchema", schemaId.value, "success", None)).asRight
+      case _ => (StatusCode.InternalServerError, types.Response("ad", "df", "asdf", None)).asLeft
+    }
+
+  private val insertRoute = JsonSchemaCrud.insert.serverLogic[F] { case (id, candidateJsonString) =>
+    io.circe.parser.decode[JsonDocument](candidateJsonString) match {
+      case Left(value) =>
+        Async[F].delay(
+          (StatusCode.BadRequest, types.Response("uploadSchema", id.value, "error", "Invalid Json".some)).asLeft
+        )
+      case Right(value) => uploadSchemaDocument(id, value)
+    }
+  }
+
+  val routes: HttpRoutes[F] = Http4sServerInterpreter[F](options)
+    .toRoutes(
       List(
-        JsonSchemaCrud.fetch.serverLogic[F](name =>
-          Async[F].delay(JsonDocument(Json.fromJsonObject(JsonObject(("k1", Json.fromString("v1"))))).asRight[Unit])
-        ),
-        JsonSchemaCrud.insert.serverLogic[F] { case (name, json) =>
-          Async[F].delay(
-            types.Response("uploadSchema", name.value, "success", json.value.noSpacesSortKeys.some).asRight[StatusCode]
-          )
-        }
+        fetchRoute,
+        insertRoute
       )
     )
-
-  val routes: HttpRoutes[F] = crud
 }
 
 object JsonSchemaCrud {
@@ -51,12 +79,16 @@ object JsonSchemaCrud {
     .in("schema")
     .in(path[SchemaId].description("SCHEMAID"))
 
-  val fetch: Endpoint[Unit, SchemaId, Unit, JsonDocument, Any] =
-    base.get.description("Download a JSON Schema with unique `SCHEMAID`").out(jsonBody[JsonDocument])
-  val insert: Endpoint[Unit, (SchemaId, JsonDocument), StatusCode, types.Response, Any] =
+  val fetch =
+    base.get
+      .description("Download a JSON Schema with unique `SCHEMAID`")
+      .out(jsonBody[JsonDocument])
+      .errorOut(statusCode.and(jsonBody[types.Response]))
+
+  val insert =
     base.post
-      .in(jsonBody[JsonDocument])
+      .in(stringBody)
       .description("Upload a JSON Schema with unique `SCHEMAID`")
-      .out(jsonBody[types.Response])
-      .errorOut(statusCode)
+      .out(statusCode.and(jsonBody[types.Response]))
+      .errorOut(statusCode.and(jsonBody[types.Response]))
 }

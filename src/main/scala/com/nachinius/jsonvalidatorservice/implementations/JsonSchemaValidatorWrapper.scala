@@ -17,15 +17,16 @@ import com.nachinius.jsonvalidatorservice.model._
 
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.util.Try
+import com.github.fge.jsonschema.main.JsonSchemaFactory
 
 /** Wrapper for the java json schema validator library
   */
 class JsonSchemaValidatorWrapper() extends ValidateJsonSchemaAlgebra {
 
   override def validateDocument(schema: JsonSchema, document: JsonDocument): Either[ErrorDuringValidation, Unit] =
-    inner(schema, document).toEither.leftMap(ex => ErrorDuringValidation(ex.getMessage))
+    tryValidation(schema, document).toEither.leftMap(ex => ErrorDuringValidation(ex.getMessage))
 
-  def inner(schema: JsonSchema, document: JsonDocument): Try[Unit] =
+  def tryValidation(schema: JsonSchema, document: JsonDocument): Try[Unit] =
     for {
       schemaJsonNode <- circeToJackson(schema.document.value)
       validator <- Try {
@@ -39,8 +40,11 @@ class JsonSchemaValidatorWrapper() extends ValidateJsonSchemaAlgebra {
       if (response.isSuccess) ()
       else throw ProcessingException(response.iterator().asScala.map(_.getMessage).mkString(";"))
 
+  /** Validate document against json schema v4
+    * @param document
+    * @return
+    */
   def validateJsonSchema(document: JsonDocument): Either[ErrorDuringValidation, Unit] = {
-    import com.github.fge.jsonschema.main.JsonSchemaFactory
     val validator = JsonSchemaFactory
       .byDefault()
       .getJsonSchema("resource:/draftv4/schema")

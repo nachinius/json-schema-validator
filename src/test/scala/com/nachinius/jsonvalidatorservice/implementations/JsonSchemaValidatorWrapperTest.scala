@@ -14,92 +14,98 @@ import io.circe._
 import com.nachinius.jsonvalidatorservice.model._
 
 class JsonSchemaValidatorWrapperTest extends FunSuite {
+  import com.nachinius.jsonvalidatorservice.implementations.JsonSchemaValidatorWrapperTest._
 
   val service: JsonSchemaValidatorWrapper = new JsonSchemaValidatorWrapper()
 
-  val document = JsonDocument("""
-    {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "title": "/etc/fstab",
-      "description": "JSON representation of /etc/fstab",
-      "type": "object",
-      "properties": {
-          "swap": {
-              "$ref": "#/definitions/mntent"
-          }
-      },
-      "patternProperties": {
-          "^/([^/]+(/[^/]+)*)?$": {
-              "$ref": "#/definitions/mntent"
-          }
-      },
-      "required": [ "/", "swap" ],
-      "additionalProperties": false,
-      "definitions": {
-          "mntent": {
-              "title": "mntent",
-              "description": "An fstab entry",
-              "type": "object",
-              "properties": {
-                  "device": {
-                      "type": "string"
-                  },
-                  "fstype": {
-                      "type": "string"
-                  },
-                  "options": {
-                      "type": "array",
-                      "minItems": 1,
-                      "items": { "type": "string" }
-                  },
-                  "dump": {
-                      "type": "integer",
-                      "minimum": 0
-                  },
-                  "fsck": {
-                      "type": "integer",
-                      "minimum": 0
-                  }
-              },
-              "required": [ "device", "fstype" ],
-              "additionalItems": false
-          }
-      }
-  }
-    """.asJson)
-
   test("validate a valid json v4 schema with document") {
-    val doc =
-      JsonDocument("""
-        {
-            "/": {
-                "device": "/dev/sda1",
-                "fstype": "btrfs",
-                "options": [ "ssd" ]
-            },
-            "swap": {
-                "device": "/dev/sda2",
-                "fstype": "swap"
-            },
-            "/tmp": {
-                "device": "tmpfs",
-                "fstype": "tmpfs",
-                "options": [ "size=64M" ]
-            },
-            "/var/lib/mysql": {
-                "device": "/dev/data/mysql",
-                "fstype": "btrfs"
-            }
-        }
-        """.asJson)
-    val triedString = service.inner(JsonSchema(SchemaId(""), doc), doc)
+
+    val triedString = service.tryValidation(JsonSchema(SchemaId(""), jsonSchema), jsonDocument)
     assert(triedString.isSuccess)
   }
 
   test("validate a document against v4") {
-    val validationOrUnit = service.validateJsonSchema(document)
+    val validationOrUnit = service.validateJsonSchema(jsonSchema)
     assert(validationOrUnit.isRight)
   }
+
+}
+
+object JsonSchemaValidatorWrapperTest {
+  val jsonSchema = JsonDocument("""
+   {
+     "$schema": "http://json-schema.org/draft-04/schema#",
+     "title": "/etc/fstab",
+     "description": "JSON representation of /etc/fstab",
+     "type": "object",
+     "properties": {
+         "swap": {
+             "$ref": "#/definitions/mntent"
+         }
+     },
+     "patternProperties": {
+         "^/([^/]+(/[^/]+)*)?$": {
+             "$ref": "#/definitions/mntent"
+         }
+     },
+     "required": [ "/", "swap" ],
+     "additionalProperties": false,
+     "definitions": {
+         "mntent": {
+             "title": "mntent",
+             "description": "An fstab entry",
+             "type": "object",
+             "properties": {
+                 "device": {
+                     "type": "string"
+                 },
+                 "fstype": {
+                     "type": "string"
+                 },
+                 "options": {
+                     "type": "array",
+                     "minItems": 1,
+                     "items": { "type": "string" }
+                 },
+                 "dump": {
+                     "type": "integer",
+                     "minimum": 0
+                 },
+                 "fsck": {
+                     "type": "integer",
+                     "minimum": 0
+                 }
+             },
+             "required": [ "device", "fstype" ],
+             "additionalItems": false
+         }
+     }
+ }
+   """.asJson)
+
+  val jsonDocument =
+    JsonDocument("""
+      {
+          "/": {
+              "device": "/dev/sda1",
+              "fstype": "btrfs",
+              "options": [ "ssd" ]
+          },
+          "swap": {
+              "device": "/dev/sda2",
+              "fstype": "swap"
+          },
+          "/tmp": {
+              "device": "tmpfs",
+              "fstype": "tmpfs",
+              "options": [ "size=64M" ]
+          },
+          "/var/lib/mysql": {
+              "device": "/dev/data/mysql",
+              "fstype": "btrfs"
+          }
+      }
+      """.asJson)
 
   private implicit class toJson(str: String) {
     def asJson: Json =
