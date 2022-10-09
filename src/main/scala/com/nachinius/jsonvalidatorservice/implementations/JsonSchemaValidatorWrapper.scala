@@ -24,7 +24,10 @@ import com.github.fge.jsonschema.main.JsonSchemaFactory
 class JsonSchemaValidatorWrapper() extends ValidateJsonSchemaAlgebra {
 
   override def validateDocument(schema: JsonSchema, document: JsonDocument): Either[ErrorDuringValidation, Unit] =
-    tryValidation(schema, document).toEither.leftMap(ex => ErrorDuringValidation(ex.getMessage))
+    tryValidation(schema, document).toEither.leftMap {
+      case ProcessingException(msg) => ErrorDuringValidation(msg)
+      case ex                       => ErrorDuringValidation(ex.getMessage)
+    }
 
   def tryValidation(schema: JsonSchema, document: JsonDocument): Try[Unit] =
     for {

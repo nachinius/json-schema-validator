@@ -15,7 +15,7 @@ import cats.implicits.toFunctorOps
 import com.nachinius.jsonvalidatorservice.api.api._
 import com.nachinius.jsonvalidatorservice.model.JsonDocument
 import com.nachinius.jsonvalidatorservice.model.JsonSchemaRepositoryAlgebra
-import com.nachinius.jsonvalidatorservice.model.SchemaExists
+import com.nachinius.jsonvalidatorservice.model.SchemaAlreadyExists
 import com.nachinius.jsonvalidatorservice.model.SchemaId
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
@@ -27,34 +27,31 @@ import sttp.tapir.path
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.statusCode
 import sttp.tapir.stringBody
-import sttp.tapir.server.http4s.Http4sServerOptions
-import sttp.tapir.server.interceptor.Interceptor
-import sttp.tapir.server.interceptor.decodefailure.DecodeFailureHandler
-import sttp.tapir.server.interceptor.decodefailure.DecodeFailureInterceptor
-import sttp.tapir.server.model.ValuedEndpointOutput
 
-final class JsonSchemaCrud[F[_]: Async](repo: JsonSchemaRepositoryAlgebra[F]) extends Http4sDsl[F] {
+final class JsonSchemaCrudRoutes[F[_]: Async](repo: JsonSchemaRepositoryAlgebra[F]) extends Http4sDsl[F] {
 
-  private val fetchRoute = JsonSchemaCrud.fetch.serverLogic[F](name =>
+  private val fetchRoute = JsonSchemaCrudRoutes.fetch.serverLogic[F](name =>
     repo.fetch(name).map {
       case Some(value) => value.document.asRight
       case None        => (StatusCode.NoContent, types.Response("", "", "", None)).asLeft
     }
   )
 
-  private def uploadSchemaDocument(schemaId: SchemaId, jsonDocument: JsonDocument) =
+  private def uploadSchemaDocument(
+      schemaId: SchemaId,
+      jsonDocument: JsonDocument
+  ): F[Either[(StatusCode, types.Response), (StatusCode, types.Response)]] =
     repo.insert(schemaId, jsonDocument).map {
-      case Left(SchemaExists(_)) =>
+      case Left(SchemaAlreadyExists(_)) =>
         (
           StatusCode.ImUsed,
           types.Response("uploadSchema", schemaId.value, "error", s"Schema already exists".some)
         ).asRight
       case Right(()) =>
         (StatusCode.Created, types.Response("uploadSchema", schemaId.value, "success", None)).asRight
-      case _ => (StatusCode.InternalServerError, types.Response("ad", "df", "asdf", None)).asLeft
     }
 
-  private val insertRoute = JsonSchemaCrud.insert.serverLogic[F] { case (id, candidateJsonString) =>
+  private val insertRoute = JsonSchemaCrudRoutes.insert.serverLogic[F] { case (id, candidateJsonString) =>
     io.circe.parser.decode[JsonDocument](candidateJsonString) match {
       case Left(value) =>
         Async[F].delay(
@@ -64,7 +61,7 @@ final class JsonSchemaCrud[F[_]: Async](repo: JsonSchemaRepositoryAlgebra[F]) ex
     }
   }
 
-  val routes: HttpRoutes[F] = Http4sServerInterpreter[F](options)
+  val routes: HttpRoutes[F] = Http4sServerInterpreter[F]()
     .toRoutes(
       List(
         fetchRoute,
@@ -73,7 +70,7 @@ final class JsonSchemaCrud[F[_]: Async](repo: JsonSchemaRepositoryAlgebra[F]) ex
     )
 }
 
-object JsonSchemaCrud {
+object JsonSchemaCrudRoutes {
 
   private val base = endpoint
     .in("schema")

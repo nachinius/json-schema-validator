@@ -3,6 +3,8 @@ package com.nachinius.jsonvalidatorservice.implementations
 import cats.Applicative
 import com.nachinius.jsonvalidatorservice.model._
 import cats.implicits.toFunctorOps
+import cats._
+import cats.implicits._
 
 class DocumentValidatorService[F[_]: Applicative](
     repo: JsonSchemaRepositoryAlgebra[F],
@@ -10,10 +12,10 @@ class DocumentValidatorService[F[_]: Applicative](
 ) extends DocumentValidatorAlgebra[F] {
 
   override def validate(schemaId: SchemaId, document: JsonDocument): F[Either[ValidatorError, Unit]] =
-    repo
-      .fetch(schemaId)
-      .map(
-        _.toRight(SchemaNotFound(schemaId.value))
-          .flatMap(validator.validateDocument(_, document))
-      )
+    for {
+      maySchema <- repo.fetch(schemaId)
+    } yield maySchema match {
+      case Some(schema) => validator.validateDocument(schema, document)
+      case None         => SchemaNotFound(schemaId.value).asLeft
+    }
 }

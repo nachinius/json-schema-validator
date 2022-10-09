@@ -53,8 +53,11 @@ object types {
 
     import io.circe.Codec
     import io.circe.generic.semiauto.deriveCodec
+    import io.circe.generic.semiauto.deriveDecoder
+    import io.circe.generic.semiauto.deriveEncoder
 
-    implicit val responseCodec: Codec[Response]        = deriveCodec[Response]
+    implicit val decoder = deriveDecoder[Response]
+    implicit val encoder = deriveEncoder[Response].mapJsonObject(jsonObject => jsonObject.filter(!_._2.isNull))
     implicit lazy val responseSchema: Schema[Response] = Schema.derived
   }
 

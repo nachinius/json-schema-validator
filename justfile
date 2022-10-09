@@ -58,11 +58,29 @@ invalidupload:
   )
   {{CURL}} -X POST {{HOST}}/schema/hhh -d "$payload"
 
-
-
 getid: (getschema "myschemaid")
-
 
 swagger:
   #!/usr/bin/env zsh
   open "{{HOST}}/docs"
+
+####
+e2e:
+  #!/usr/bin/env zsh
+  echo "\n========================================================\n"
+  echo "upload\n"
+  {{CURL}} -X POST {{HOST}}/schema/config-schema -d @config-schema.json
+  echo "\n========================================================\n"
+  echo "retrieve\n"
+  {{CURL}} -X GET {{HOST}}/schema/config-schema
+  echo "\n========================================================\n"
+  echo "validate\n"
+  {{CURL}} -X POST {{HOST}}/validate/config-schema -d @config.json
+  echo "========================================================\n"
+  echo "schema doesn't exist, can't validate:\n"
+  {{CURL}} -X POST {{HOST}}/validate/2config-schema -d @bad-config.json
+  echo "\n========================================================\n"
+  echo "validation didn't pass:\n"
+  {{CURL}} -X POST {{HOST}}/validate/config-schema -d @bad-config.json
+
+

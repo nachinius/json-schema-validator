@@ -47,15 +47,21 @@ object Server extends IOApp {
       inMemoryRepo <- InMemoryRepository.make[IO]
       wrapper              = new JsonSchemaValidatorWrapper()
       validatorService     = new DocumentValidatorService[IO](inMemoryRepo, wrapper)
-      jsonSchemaCrudRoutes = new JsonSchemaCrud[IO](inMemoryRepo)
+      jsonSchemaCrudRoutes = new JsonSchemaCrudRoutes[IO](inMemoryRepo)
+      validatorRoutes      = new DocumentValidatorRoutes[IO](validatorService)
       docs = OpenAPIDocsInterpreter().toOpenAPI(
-        List(HelloWorld.greetings, JsonSchemaCrud.fetch, JsonSchemaCrud.insert),
-        "My Service",
+        List(
+          HelloWorld.greetings,
+          JsonSchemaCrudRoutes.fetch,
+          JsonSchemaCrudRoutes.insert,
+          DocumentValidatorRoutes.base
+        ),
+        "Json Document Validator",
         "1.0.0"
       )
       swaggerRoutes = Http4sServerInterpreter[IO]().toRoutes(SwaggerUI[IO](docs.toYaml))
-      routes        = jsonSchemaCrudRoutes.routes <+> helloWorldRoutes.routes <+> swaggerRoutes
-      httpApp       = Router("/" -> routes).orNotFound
+      routes  = validatorRoutes.routes <+> jsonSchemaCrudRoutes.routes <+> helloWorldRoutes.routes <+> swaggerRoutes
+      httpApp = Router("/" -> routes).orNotFound
       resource = EmberServerBuilder
         .default[IO]
         .withHost(serviceConfig.host)

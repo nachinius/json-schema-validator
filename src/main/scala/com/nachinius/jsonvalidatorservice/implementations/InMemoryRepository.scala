@@ -19,11 +19,11 @@ class InMemoryRepository[F[_]: Applicative](ref: Ref[F, Storage]) extends JsonSc
   override def fetch(schemaId: SchemaId): F[Option[JsonSchema]] =
     ref.get.map(_.get(schemaId).map(doc => JsonSchema(schemaId, doc)))
 
-  override def insert(schemaId: SchemaId, document: JsonDocument): F[Either[SchemaExists, Unit]] =
+  override def insert(schemaId: SchemaId, document: JsonDocument): F[Either[SchemaAlreadyExists, Unit]] =
     ref.modifyState {
       State.apply(s =>
         s.get(schemaId) match {
-          case Some(_) => (s, Left(SchemaExists(schemaId.value)))
+          case Some(_) => (s, Left(SchemaAlreadyExists(schemaId.value)))
           case None    => (s.updated(schemaId, document), Either.unit)
         }
       )

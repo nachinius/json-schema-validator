@@ -18,10 +18,11 @@ trait DocumentValidatorAlgebra[F[_]] {
 
 trait JsonSchemaRepositoryAlgebra[F[_]] {
   def fetch(schemaId: SchemaId): F[Option[JsonSchema]]
-  def insert(schemaId: SchemaId, document: JsonDocument): F[Either[SchemaExists, Unit]]
+  def insert(schemaId: SchemaId, document: JsonDocument): F[Either[SchemaAlreadyExists, Unit]]
 }
 
-sealed abstract class ValidatorError(msg: String) extends Exception(msg)
-case class ErrorDuringValidation(msg: String)     extends ValidatorError(msg)
-case class SchemaNotFound(msg: String)            extends ValidatorError(s"Schema ${msg} not found")
-case class SchemaExists(msg: String)              extends ValidatorError(s"Schema ${msg} already exists")
+sealed abstract class ValidatorError(msg: String)   extends Exception(msg)
+sealed abstract class RespositoryError(msg: String) extends Exception(msg)
+case class ErrorDuringValidation(msg: String)       extends ValidatorError(msg)
+case class SchemaNotFound(msg: String)              extends ValidatorError(s"Schema ${msg} not found")
+case class SchemaAlreadyExists(msg: String)         extends RespositoryError(s"Schema ${msg} already exists")
