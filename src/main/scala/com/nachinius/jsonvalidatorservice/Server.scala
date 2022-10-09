@@ -10,10 +10,12 @@ package com.nachinius.jsonvalidatorservice
 
 import cats.effect._
 import cats.syntax.all._
-import com.typesafe.config._
 import com.nachinius.jsonvalidatorservice.api._
 import com.nachinius.jsonvalidatorservice.config._
 import com.nachinius.jsonvalidatorservice.db.FlywayDatabaseMigrator
+import com.nachinius.jsonvalidatorservice.implementations.DocumentValidatorService
+import com.nachinius.jsonvalidatorservice.implementations.JsonSchemaValidatorWrapper
+import com.typesafe.config._
 import org.http4s.ember.server._
 import org.http4s.implicits._
 import org.http4s.server.Router
@@ -23,9 +25,6 @@ import sttp.apispec.openapi.circe.yaml._
 import sttp.tapir.docs.openapi._
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.swagger.SwaggerUI
-import com.nachinius.jsonvalidatorservice.implementations.DocumentValidatorService
-import com.nachinius.jsonvalidatorservice.implementations.InMemoryRepository
-import com.nachinius.jsonvalidatorservice.implementations.JsonSchemaValidatorWrapper
 
 object Server extends IOApp {
 
@@ -52,7 +51,7 @@ object Server extends IOApp {
         dbConfig.user.value,
         dbConfig.pass.value
       )
-      inMemoryRepo <- InMemoryRepository.make[IO]
+//      inMemoryRepo <- InMemoryRepository.make[IO]
       postgresRepo <- PostgresRepository.make[IO](xa)
       wrapper              = new JsonSchemaValidatorWrapper()
       validatorService     = new DocumentValidatorService[IO](postgresRepo, wrapper)

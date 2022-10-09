@@ -5,27 +5,19 @@ import cats.implicits._
 import com.nachinius.jsonvalidatorservice.model.JsonDocument
 import com.nachinius.jsonvalidatorservice.model.JsonSchema
 import com.nachinius.jsonvalidatorservice.model.JsonSchemaRepositoryAlgebra
+import com.nachinius.jsonvalidatorservice.model.RepositoryError
 import com.nachinius.jsonvalidatorservice.model.SchemaAlreadyExists
 import com.nachinius.jsonvalidatorservice.model.SchemaId
 import com.nachinius.jsonvalidatorservice.model.UnknownError
 import doobie._
 import doobie.implicits._
 import doobie.postgres._
-import doobie.util.transactor.Transactor
-import cats._
-import cats.data._
-import cats.implicits._
-import doobie.postgres._
-import doobie.postgres.implicits._
 import doobie.postgres.circe.json.implicits._
-import cats._, cats.data._, cats.implicits._
-import doobie._, doobie.implicits._
-import io.circe._, io.circe.jawn._, io.circe.syntax._
+import doobie.util.transactor.Transactor
 import io.circe.Json
-import com.nachinius.jsonvalidatorservice.model.RepositoryError
 
 class PostgresRepository[F[_]: MonadCancelThrow](xa: Transactor[F]) extends JsonSchemaRepositoryAlgebra[F] {
-  import PostgresRepository.Metas._
+  import com.nachinius.jsonvalidatorservice.implementations.PostgresRepository.Metas._
   override def fetch(schemaId: SchemaId): F[Option[JsonSchema]] =
     sql"SELECT id, doc FROM json_schema WHERE id = $schemaId".query[JsonSchema].option.transact(xa)
 
