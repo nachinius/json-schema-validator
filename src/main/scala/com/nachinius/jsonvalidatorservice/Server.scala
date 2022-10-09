@@ -32,16 +32,15 @@ object Server extends IOApp {
 
     for {
       config <- IO(ConfigFactory.load(getClass().getClassLoader()))
-//      dbConfig <- IO(
-//        ConfigSource.fromConfig(config).at(DatabaseConfig.CONFIG_KEY.toString).loadOrThrow[DatabaseConfig]
-//      )
+      dbConfig <- IO(
+        ConfigSource.fromConfig(config).at(DatabaseConfig.CONFIG_KEY.toString).loadOrThrow[DatabaseConfig]
+      )
       serviceConfig <- IO(
         ConfigSource.fromConfig(config).at(ServiceConfig.CONFIG_KEY.toString).loadOrThrow[ServiceConfig]
       )
-//      _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
+      _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
       helloWorldRoutes     = new HelloWorld[IO]
       jsonSchemaCrudRoutes = new JsonSchemaCrud[IO]
-      _                    = println("c")
       docs = OpenAPIDocsInterpreter().toOpenAPI(
         List(HelloWorld.greetings, JsonSchemaCrud.fetch, JsonSchemaCrud.insert),
         "My Service",

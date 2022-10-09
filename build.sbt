@@ -36,7 +36,7 @@ inThisBuild(
 lazy val jsonvalidatorservice =
   project
     .in(file("."))
-    .enablePlugins(AutomateHeaderPlugin)
+//    .enablePlugins(AutomateHeaderPlugin)
     .configs(IntegrationTest)
     .settings(
       name := "json-validator-service"

@@ -35,81 +35,6 @@ object types {
 
   }
 
-  //  opaque type GreetingHeader = String
-  //  object GreetingHeader {
-  //
-  //    given Schema[GreetingHeader] = Schema.string
-  //
-  //    /** Create an instance of GreetingHeader from the given String type.
-  //      *
-  //      * @param source
-  //      *   An instance of type String which will be returned as a GreetingHeader.
-  //      * @return
-  //      *   The appropriate instance of GreetingHeader.
-  //      */
-  //    def apply(source: String): GreetingHeader = source
-  //
-  //    /** Try to create an instance of GreetingHeader from the given String.
-  //      *
-  //      * @param source
-  //      *   A String that should fulfil the requirements to be converted into a GreetingHeader.
-  //      * @return
-  //      *   An option to the successfully converted GreetingHeader.
-  //      */
-  //    def from(source: String): Option[GreetingHeader] = Option(source).filter(_.nonEmpty)
-  //
-  //  }
-  //
-  //  opaque type GreetingMessage = String
-  //  object GreetingMessage {
-  //
-  //    given Schema[GreetingMessage] = Schema.string
-  //
-  //    /** Create an instance of GreetingMessage from the given String type.
-  //      *
-  //      * @param source
-  //      *   An instance of type String which will be returned as a GreetingMessage.
-  //      * @return
-  //      *   The appropriate instance of GreetingMessage.
-  //      */
-  //    def apply(source: String): GreetingMessage = source
-  //
-  //    /** Try to create an instance of GreetingMessage from the given String.
-  //      *
-  //      * @param source
-  //      *   A String that should fulfil the requirements to be converted into a GreetingMessage.
-  //      * @return
-  //      *   An option to the successfully converted GreetingMessage.
-  //      */
-  //    def from(source: String): Option[GreetingMessage] = Option(source).filter(_.nonEmpty)
-  //
-  //  }
-  //
-  //  opaque type GreetingTitle = String
-  //  object GreetingTitle {
-  //
-  //    given Schema[GreetingTitle] = Schema.string
-  //
-  //    /** Create an instance of GreetingTitle from the given String type.
-  //      *
-  //      * @param source
-  //      *   An instance of type String which will be returned as a GreetingTitle.
-  //      * @return
-  //      *   The appropriate instance of GreetingTitle.
-  //      */
-  //    def apply(source: String): GreetingTitle = source
-  //
-  //    /** Try to create an instance of GreetingTitle from the given String.
-  //      *
-  //      * @param source
-  //      *   A String that should fulfil the requirements to be converted into a GreetingTitle.
-  //      * @return
-  //      *   An option to the successfully converted GreetingTitle.
-  //      */
-  //    def from(source: String): Option[GreetingTitle] = Option(source).filter(_.nonEmpty)
-  //
-  //  }
-
   case class JdbcDriverName(value: String)
   object JdbcDriverName {
     val Format: Regex = "^\\w+\\.[\\w\\d\\.]+[\\w\\d]+$".r
@@ -121,7 +46,7 @@ object types {
       * @return
       *   The appropriate instance of JdbcDriverName.
       */
-    def apply(source: String): JdbcDriverName = JdbcDriverName.apply(source)
+    def apply(source: String): JdbcDriverName = new JdbcDriverName(source)
 
     /** Try to create an instance of JdbcDriverName from the given String.
       *
@@ -143,7 +68,7 @@ object types {
       * @return
       *   The appropriate instance of JdbcPassword.
       */
-    def apply(source: String): JdbcPassword = JdbcPassword.apply(source)
+    def apply(source: String): JdbcPassword = new JdbcPassword(source)
 
     /** Try to create an instance of JdbcPassword from the given String.
       *
@@ -167,7 +92,7 @@ object types {
       * @return
       *   The appropriate instance of JdbcUrl.
       */
-    def apply(source: String): JdbcUrl = JdbcUrl.apply(source)
+    def apply(source: String): JdbcUrl = new JdbcUrl(source)
 
     /** Try to create an instance of JdbcUrl from the given String.
       *
@@ -190,7 +115,7 @@ object types {
       * @return
       *   The appropriate instance of JdbcUsername.
       */
-    def apply(source: String): JdbcUsername = JdbcUsername.apply(source)
+    def apply(source: String): JdbcUsername = new JdbcUsername(source)
 
     /** Try to create an instance of JdbcUsername from the given String.
       *

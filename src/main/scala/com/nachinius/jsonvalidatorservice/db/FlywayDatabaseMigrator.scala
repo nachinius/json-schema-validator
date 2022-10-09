@@ -30,7 +30,7 @@ final class FlywayDatabaseMigrator {
   def migrate(url: JdbcUrl, user: JdbcUsername, pass: JdbcPassword): IO[MigrateResult] =
     IO {
       val flyway: Flyway =
-        Flyway.configure().dataSource(url.toString, user.toString, pass.toString).load()
+        Flyway.configure().dataSource(url.value, user.value, pass.value).load()
       flyway.migrate()
     }
 
