@@ -1,0 +1,1 @@
+{"actions":"validateDocument","id":"config-schema","status":"error","message":"object has missing required properties ([\"destination\"])"}
