@@ -49,8 +49,10 @@ final class JsonSchemaCrudRoutes[F[_]: Async](repo: JsonSchemaRepositoryAlgebra[
           types.Response("uploadSchema", schemaId.value, "error", s"Schema already exists".some)
         ).asRight
       case Left(UnknownError(msg)) =>
-        (StatusCode.InternalServerError,
-          types.Response("uploadSchema",schemaId.value,"error",s"sUnknown error from repository ${msg}".some)).asRight
+        (
+          StatusCode.InternalServerError,
+          types.Response("uploadSchema", schemaId.value, "error", s"sUnknown error from repository ${msg}".some)
+        ).asRight
       case Right(()) =>
         (StatusCode.Created, types.Response("uploadSchema", schemaId.value, "success", None)).asRight
     }

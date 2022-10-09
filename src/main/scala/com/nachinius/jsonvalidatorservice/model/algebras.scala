@@ -27,4 +27,4 @@ case class SchemaNotFound(msg: String)            extends ValidatorError(s"Schem
 
 sealed abstract class RepositoryError(msg: String) extends Exception(msg)
 case class SchemaAlreadyExists(msg: String)        extends RepositoryError(s"Schema ${msg} already exists")
-case class UnknownError(msg: String)        extends RepositoryError(s"Unknown error ${msg}")
+case class UnknownError(msg: String)               extends RepositoryError(s"Unknown error ${msg}")

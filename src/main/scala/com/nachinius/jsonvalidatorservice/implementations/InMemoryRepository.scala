@@ -41,8 +41,3 @@ object InMemoryRepository {
       ref <- Ref[F].of(empty)
     } yield new InMemoryRepository[F](ref)
 }
-
-
-
-
-
