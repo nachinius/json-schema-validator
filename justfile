@@ -82,5 +82,8 @@ e2e:
   echo "\n========================================================\n"
   echo "validation didn't pass:\n"
   {{CURL}} -X POST {{HOST}}/validate/config-schema -d @bad-config.json
+  echo "\n========================================================\n"
+  echo "config with nulls"
+  {{CURL}} -X POST {{HOST}}/validate/config-schema -d @config-with-nulls.json
 
 
