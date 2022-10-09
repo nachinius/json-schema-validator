@@ -28,24 +28,35 @@ import com.nachinius.jsonvalidatorservice.implementations.InMemoryRepository
 import com.nachinius.jsonvalidatorservice.implementations.JsonSchemaValidatorWrapper
 
 object Server extends IOApp {
+
+  import doobie.util.transactor.Transactor
+
   val log = LoggerFactory.getLogger(Server.getClass())
 
-  override def run(args: List[String]): IO[ExitCode] =
-//    val migrator = new FlywayDatabaseMigrator
+  override def run(args: List[String]): IO[ExitCode] = {
+    import com.nachinius.jsonvalidatorservice.implementations.PostgresRepository
+    val migrator = new FlywayDatabaseMigrator
 
     for {
       config <- IO(ConfigFactory.load(getClass().getClassLoader()))
-//      dbConfig <- IO(
-//        ConfigSource.fromConfig(config).at(DatabaseConfig.CONFIG_KEY.toString).loadOrThrow[DatabaseConfig]
-//      )
+      dbConfig <- IO(
+        ConfigSource.fromConfig(config).at(DatabaseConfig.CONFIG_KEY.toString).loadOrThrow[DatabaseConfig]
+      )
       serviceConfig <- IO(
         ConfigSource.fromConfig(config).at(ServiceConfig.CONFIG_KEY.toString).loadOrThrow[ServiceConfig]
       )
-//      _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
+      _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
+      xa = Transactor.fromDriverManager[IO](
+        dbConfig.driver.value,
+        dbConfig.url.value,
+        dbConfig.user.value,
+        dbConfig.pass.value
+      )
       inMemoryRepo <- InMemoryRepository.make[IO]
+      postgresRepo <- PostgresRepository.make[IO](xa)
       wrapper              = new JsonSchemaValidatorWrapper()
-      validatorService     = new DocumentValidatorService[IO](inMemoryRepo, wrapper)
-      jsonSchemaCrudRoutes = new JsonSchemaCrudRoutes[IO](inMemoryRepo)
+      validatorService     = new DocumentValidatorService[IO](postgresRepo, wrapper)
+      jsonSchemaCrudRoutes = new JsonSchemaCrudRoutes[IO](postgresRepo)
       validatorRoutes      = new DocumentValidatorRoutes[IO](validatorService)
       docs = OpenAPIDocsInterpreter().toOpenAPI(
         List(
@@ -69,5 +80,6 @@ object Server extends IOApp {
         IO.delay(log.info("Server started at {}", server.address)) >> IO.never.as(ExitCode.Success)
       )
     } yield fiber
+  }
 
 }

@@ -19,7 +19,7 @@ class InMemoryRepository[F[_]: Applicative](ref: Ref[F, Storage]) extends JsonSc
   override def fetch(schemaId: SchemaId): F[Option[JsonSchema]] =
     ref.get.map(_.get(schemaId).map(doc => JsonSchema(schemaId, doc)))
 
-  override def insert(schemaId: SchemaId, document: JsonDocument): F[Either[SchemaAlreadyExists, Unit]] =
+  override def insert(schemaId: SchemaId, document: JsonDocument): F[Either[RepositoryError, Unit]] =
     ref.modifyState {
       State.apply(s =>
         s.get(schemaId) match {
@@ -36,8 +36,13 @@ object InMemoryRepository {
 
   import cats.effect.kernel.Ref.Make
 
-  def make[F[_]: Make: Applicative]: F[InMemoryRepository[F]] =
+  def make[F[_]: Make: Applicative]: F[JsonSchemaRepositoryAlgebra[F]] =
     for {
       ref <- Ref[F].of(empty)
     } yield new InMemoryRepository[F](ref)
 }
+
+
+
+
+

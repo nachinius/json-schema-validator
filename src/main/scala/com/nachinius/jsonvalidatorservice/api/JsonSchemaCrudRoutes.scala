@@ -27,6 +27,7 @@ import sttp.tapir.path
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.statusCode
 import sttp.tapir.stringBody
+import com.nachinius.jsonvalidatorservice.model.UnknownError
 
 final class JsonSchemaCrudRoutes[F[_]: Async](repo: JsonSchemaRepositoryAlgebra[F]) extends Http4sDsl[F] {
 
@@ -47,6 +48,9 @@ final class JsonSchemaCrudRoutes[F[_]: Async](repo: JsonSchemaRepositoryAlgebra[
           StatusCode.ImUsed,
           types.Response("uploadSchema", schemaId.value, "error", s"Schema already exists".some)
         ).asRight
+      case Left(UnknownError(msg)) =>
+        (StatusCode.InternalServerError,
+          types.Response("uploadSchema",schemaId.value,"error",s"sUnknown error from repository ${msg}".some)).asRight
       case Right(()) =>
         (StatusCode.Created, types.Response("uploadSchema", schemaId.value, "success", None)).asRight
     }
