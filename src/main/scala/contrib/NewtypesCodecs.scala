@@ -1,12 +1,4 @@
-/*
- * Copyright (c) 2022 nachinius
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-
-package com.nachinius.jsonvalidatorservice.api
+package contrib
 
 import io.circe.Decoder
 import io.circe.DecodingFailure
@@ -15,6 +7,7 @@ import io.circe.HCursor
 import monix.newtypes.HasBuilder
 import monix.newtypes.HasExtractor
 
+// https://github.com/busymachines/newtypes-tapir-example
 trait NewtypesCodecs {
 
   // Inlined from https://github.com/monix/newtypes/blob/main/integration-circe/all/shared/src/main/scala/monix/newtypes/integrations/DerivedCirceCodec.scala

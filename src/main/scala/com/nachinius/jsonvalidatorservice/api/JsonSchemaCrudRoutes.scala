@@ -12,7 +12,7 @@ import cats.effect.Async
 import cats.implicits.catsSyntaxEitherId
 import cats.implicits.catsSyntaxOptionId
 import cats.implicits.toFunctorOps
-import com.nachinius.jsonvalidatorservice.api.api._
+import contrib.codecs._
 import com.nachinius.jsonvalidatorservice.model.JsonDocument
 import com.nachinius.jsonvalidatorservice.model.JsonSchemaRepositoryAlgebra
 import com.nachinius.jsonvalidatorservice.model.SchemaAlreadyExists

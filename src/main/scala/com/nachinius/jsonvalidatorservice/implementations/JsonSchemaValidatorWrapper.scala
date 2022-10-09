@@ -17,7 +17,6 @@ import com.nachinius.jsonvalidatorservice.model._
 
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.util.Try
-import com.github.fge.jsonschema.main.JsonSchemaFactory
 
 /** Wrapper for the java json schema validator library
   */
@@ -53,7 +52,7 @@ class JsonSchemaValidatorWrapper() extends ValidateJsonSchemaAlgebra {
       .getJsonSchema("resource:/draftv4/schema")
     val mayJsonNode = circeToJackson(document.value)
     mayJsonNode
-      .flatMap(jsonNode => scala.util.Try(validator.validate(jsonNode)))
+      .flatMap(jsonNode => Try(validator.validate(jsonNode)))
       .fold(
         ex => Left(ErrorDuringValidation(ex.getMessage)),
         pr =>

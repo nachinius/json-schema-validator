@@ -4,7 +4,6 @@ import cats.effect.Async
 import cats.implicits.catsSyntaxEitherId
 import cats.implicits.catsSyntaxOptionId
 import cats.implicits.toFunctorOps
-import com.nachinius.jsonvalidatorservice.api.api._
 import com.nachinius.jsonvalidatorservice.model.JsonDocument
 import com.nachinius.jsonvalidatorservice.model.SchemaId
 import com.nachinius.jsonvalidatorservice.model._
@@ -16,13 +15,12 @@ import sttp.tapir.json.circe._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.path
 import sttp.tapir.server.http4s.Http4sServerInterpreter
+import contrib.codecs._
 
 final class DocumentValidatorRoutes[F[_]: Async](validator: DocumentValidatorAlgebra[F]) extends Http4sDsl[F] {
 
-  val validateRoute = DocumentValidatorRoutes.base.serverLogic { case (id, document) =>
-    for {
-      schemaOrError <- validator.validate(id, document)
-    } yield schemaOrError match {
+  private val validateRoute = DocumentValidatorRoutes.base.serverLogic { case (id, document) =>
+    validator.validate(id, document).map {
       case Left(z: ErrorDuringValidation) =>
         types
           .Response(
@@ -51,7 +49,6 @@ final class DocumentValidatorRoutes[F[_]: Async](validator: DocumentValidatorAlg
           )
           .asRight[Unit]
     }
-
   }
 
   val routes: HttpRoutes[F] = Http4sServerInterpreter[F]().toRoutes(validateRoute :: Nil)

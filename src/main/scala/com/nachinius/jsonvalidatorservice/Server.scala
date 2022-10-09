@@ -42,8 +42,6 @@ object Server extends IOApp {
         ConfigSource.fromConfig(config).at(ServiceConfig.CONFIG_KEY.toString).loadOrThrow[ServiceConfig]
       )
 //      _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
-      helloWorldRoutes = new HelloWorld[IO]
-
       inMemoryRepo <- InMemoryRepository.make[IO]
       wrapper              = new JsonSchemaValidatorWrapper()
       validatorService     = new DocumentValidatorService[IO](inMemoryRepo, wrapper)
@@ -51,7 +49,6 @@ object Server extends IOApp {
       validatorRoutes      = new DocumentValidatorRoutes[IO](validatorService)
       docs = OpenAPIDocsInterpreter().toOpenAPI(
         List(
-          HelloWorld.greetings,
           JsonSchemaCrudRoutes.fetch,
           JsonSchemaCrudRoutes.insert,
           DocumentValidatorRoutes.base
@@ -60,8 +57,8 @@ object Server extends IOApp {
         "1.0.0"
       )
       swaggerRoutes = Http4sServerInterpreter[IO]().toRoutes(SwaggerUI[IO](docs.toYaml))
-      routes  = validatorRoutes.routes <+> jsonSchemaCrudRoutes.routes <+> helloWorldRoutes.routes <+> swaggerRoutes
-      httpApp = Router("/" -> routes).orNotFound
+      routes        = validatorRoutes.routes <+> jsonSchemaCrudRoutes.routes <+> swaggerRoutes
+      httpApp       = Router("/" -> routes).orNotFound
       resource = EmberServerBuilder
         .default[IO]
         .withHost(serviceConfig.host)
