@@ -13,6 +13,8 @@
 ./local_run.zsh
 ```
 
+App listens for HTTP requests at `http://127.0.0.1:8080`
+
 ### Quick Integration Test
 
 Once the application is running locally with **an empty database** (stop and restartthe `local_run.zsh` script)
