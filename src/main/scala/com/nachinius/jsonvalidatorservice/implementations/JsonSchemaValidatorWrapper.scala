@@ -30,11 +30,11 @@ class JsonSchemaValidatorWrapper() extends ValidateJsonSchemaAlgebra {
 
   def tryValidation(schema: JsonSchema, document: JsonDocument): Try[Unit] =
     for {
-      schemaJsonNode <- circeToJackson(schema.document.value)
+      schemaJsonNode <- circeToJackson(schema.document.value, false)
       validator <- Try {
         JsonSchemaFactory.byDefault().getJsonSchema(schemaJsonNode)
       }
-      jsonNode <- circeToJackson(document.value)
+      jsonNode <- circeToJackson(document.value, true)
       response <- Try {
         validator.validate(jsonNode)
       }
@@ -65,10 +65,11 @@ class JsonSchemaValidatorWrapper() extends ValidateJsonSchemaAlgebra {
       )
   }
 
-  def circeToJackson(value: io.circe.Json): Try[JsonNode] = {
+  def circeToJackson(value: io.circe.Json, dropNullValues: Boolean = false): Try[JsonNode] = {
+    val json = if(dropNullValues) value.deepDropNullValues else value
     val mapper = new ObjectMapper
     Try {
-      mapper.readTree(value.noSpaces)
+      mapper.readTree(json.noSpaces)
     }
   }
 }
