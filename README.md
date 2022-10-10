@@ -5,7 +5,8 @@
 ### Requirements
 - sbt
 - docker
-- port 5432 available
+- port 5432 available (for db)
+- port 8080 available (for app)
 - zsh (potentially should work on bash too)
 
 ```shell
