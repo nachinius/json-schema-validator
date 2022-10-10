@@ -13,7 +13,7 @@
 ./local_run.zsh
 ```
 
-App listens for HTTP requests at `http://127.0.0.1:8080`
+The command spins up a database and the app that listens for HTTP requests at `http://127.0.0.1:8080`
 
 ### Quick Integration Test
 
